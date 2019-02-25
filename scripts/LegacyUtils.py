@@ -12,6 +12,7 @@ selected_patient = ("_0513130114210512",
                         "KAWAALA", "1997", "M", "0704202234", "", "", "")
 
 # columns (we'll use these to compute the Levenshtein distance)
+# these are columns of patient properties
 distance_columns = ['Updated_GivenName', 'Updated_MiddleName', 'Updated_FamilyName', 'District', 'County',
                         'sub_county', 'Parish', 'village', 'Birthdate', 'Gender', 'Telephone Number',
                         'Treatment Supporter Telephone Number', 'First Encounter Date', 'ART Start Date']
@@ -67,11 +68,34 @@ def calc_levenshtein_distance(row):
     return math.sqrt(inner_value)
 
 
-# Adding an event of what is done once `search` button is hit
-def on_button_clicked():
+def categorize_distances(row):
+    """
+    This does the ranking of whether the Patient is a match/possible/No
+    :param row: Row Patient being ranked
+    :return:
+    """
+    category_name = ""
+    try:
+        distance_value = row["dist"]
+        value = float(distance_value)
+        if (value) == 0.000000:
+            category_name = "Match"
+        elif (0.000001 <= value <= 0.1):
+            category_name = "Possible Match"
+        elif (value > 0.1):
+            category_name = "None Match"
+        distance_value = ""
+    except:
+        category_name = "Not Categorised,Invalid Distance Value"
+    return category_name
+
+
+def do_levenshtein_search():
 
     # Find the distance between the selected/chosen patient and everyone else.
     levenshtein_distances = data.apply(lambda row: calc_levenshtein_distance(row), axis=1)
+    print("Printing distances")
+    print(levenshtein_distances)
 
     # STEP 5: WEIGHT SORTING
     # Create a new dataframe with distances.
@@ -98,36 +122,15 @@ def on_button_clicked():
               "First Encounter Date": data["First Encounter Date"], "ART Start Date": data["ART Start Date"]})
     distance_frame.sort_values("dist", inplace=True)
 
-    # print distances/scores just to have an overview of the differences
-    print(distance_frame.head())
-
     saved_df = distance_frame.head(4)
 
     # -----------------categorization ---------------------------------#
-    def categorize_distances(row):
-        category_name = ""
-        try:
-            distance_value = row["dist"]
-            value = float(distance_value)
-            if (value) == 0.000000:
-                category_name = "Match"
-            elif (0.000001 <= value <= 0.1):
-                category_name = "Possible Match"
-            elif (value > 0.1):
-                category_name = "None Match"
-            distance_value = ""
-        except:
-            category_name = "Not Categorised,Invalid Distance Value"
-        return category_name
 
     categorised_distances = saved_df.apply(lambda row: categorize_distances(row), axis=1)
     saved_df = saved_df.assign(RecordCategory=categorised_distances.values)
     # saved_df['Category'] = Series(categorised_distances, index=saved_df.index)
     # categorised_distances.to_csv('saved_Levenshtein_distances_category.csv')
     # ---------------end of categorization----------------------------#
-    saved_df.to_csv('saved_Levenshtein_distances.csv')
-    print(saved_df)
-    distance_framex = distance_frame
 
 
-on_button_clicked()
+do_levenshtein_search()
