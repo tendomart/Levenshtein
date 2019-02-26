@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
@@ -6,7 +6,7 @@ app = Flask(__name__)
 # The index page
 @app.route("/")
 def index():
-    pass
+    return render_template("index.html")
 
 
 # The login page

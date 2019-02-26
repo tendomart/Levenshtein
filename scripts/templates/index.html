@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %} index {% endblock %}
+{% block content %}
+<h2>Enter Patient Particulars to search against</h2>
+<form id="pat-particulars" method="post">
+    <table>
+        <tr>
+            <td>Given name:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>Middle name:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>Family name:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>District:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>County:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>County:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>Sub_county:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>Parish:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>Village:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>Birth date:</td> <td><input type="date"></td>
+        </tr>
+        <tr>
+            <td>Gender:</td>
+            <td>
+                <select name="gender">
+                    <option>M</option>
+                    <option>F</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Telephone Number:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>Treatment Supporter Telephone Number:</td> <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>First Encounter Date:</td> <td><input type="date"></td>
+        </tr>
+        <tr>
+            <td>ART Start Date:</td> <td><input type="date"></td>
+        </tr>
+        <tr>
+            <td></td> <td><input type="submit" value="search"></td>
+        </tr>
+    </table>
+</form>
+{% endblock %}

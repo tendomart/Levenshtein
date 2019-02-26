@@ -78,13 +78,12 @@ def categorize_distances(row):
     try:
         distance_value = row["dist"]
         value = float(distance_value)
-        if (value) == 0.000000:
+        if value == 0.000000:
             category_name = "Match"
-        elif (0.000001 <= value <= 0.1):
+        elif 0.000001 <= value <= 0.1:
             category_name = "Possible Match"
-        elif (value > 0.1):
+        elif value > 0.1:
             category_name = "None Match"
-        distance_value = ""
     except:
         category_name = "Not Categorised,Invalid Distance Value"
     return category_name
