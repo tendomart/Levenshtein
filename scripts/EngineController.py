@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 import scripts.rest as rest
 import scripts.LevenshteinUtils as utils
-from scripts.patient import Patient
+from scripts.patient import Patient, format_date
 
 app = Flask(__name__)
 
@@ -41,10 +41,10 @@ def __init_patient__(request):
     candidate.sub_county = request.form.get('sub_county')
     candidate.parish = request.form.get('parish')
     candidate.village = request.form.get('village')
-    candidate.birthdate = request.form.get('birth_date')
+    candidate.birthdate = format_date(request.form.get('birth_date'))
     candidate.supporter_tel_num = request.form.get('supp_tel_no')
-    candidate.first_enc_date = request.form.get('first_enc_date')
-    candidate.art_start_date = request.form.get('art_start_date')
+    candidate.first_enc_date = format_date(request.form.get('first_enc_date'))
+    candidate.art_start_date = format_date(request.form.get('art_start_date'))
     return candidate
 
 

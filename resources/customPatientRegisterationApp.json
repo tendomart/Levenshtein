@@ -1,0 +1,144 @@
+[
+  /*
+  * Copy this code and use it as your patient Registration app Definition
+  * Be sure to replace the uuids of your new custom Person Attributes with
+  * those in your openmrs server.
+  * Be sure to create those new Person Attributes in your openmrs instance
+  * https://wiki.openmrs.org/display/docs/Managing+Person+Attribute+Types
+  * https://wiki.openmrs.org/display/docs/Registration+App+Configuration
+  * Also don't copy the outermost `[]` of this file
+  */
+  {
+  "id": "referenceapplication.registrationapp.custom",
+  "instanceOf": "registrationapp.registerPatient",
+  "label": "Register Patient",
+  "description": "Create a new Patient Record",
+  "extensions": [
+    {
+      "id": "referenceapplication.registrationapp.custom.homepageLink",
+      "extensionPointId": "org.openmrs.referenceapplication.homepageLink",
+      "type": "link",
+      "label": "referenceapplication.app.registerPatient.label",
+      "url": "registrationapp\/registerPatient.page?appId=referenceapplication.registrationapp.custom",
+      "icon": "icon-user",
+      "order": 1,
+      "requiredPrivilege": "App: registrationapp.registerPatient"
+    }
+  ],
+  "config": {
+    "afterCreatedUrl": "\/coreapps\/clinicianfacing\/patient.page?patientId={{patientId}}",
+    "sections": [
+      {
+        "id": "contactInfo",
+        "label": "registrationapp.patient.contactInfo.label",
+        "questions": [
+          {
+            "legend": "Person.address",
+            "fields": [
+              {
+                "type": "personAddress",
+                "label": "registrationapp.patient.address.question",
+                "widget": {
+                  "providerName": "uicommons",
+                  "fragmentId": "field\/personAddress"
+                }
+              },
+              {
+                "type": "personAttribute",
+                "label": "Parish",
+                "formFieldName": "parish",
+                "uuid": ${uuid},
+                "widget": {
+                  "providerName": "uicommons",
+                  "fragmentId": "field\/text"
+                }
+              },
+              {
+                "type": "personAttribute",
+                "label": "County",
+                "formFieldName": "county",
+                "uuid": ${uuid},
+                "widget": {
+                  "providerName": "uicommons",
+                  "fragmentId": "field\/text"
+                }
+              },
+              {
+                "type": "personAttribute",
+                "label": "Sub-county",
+                "formFieldName": "sub-county",
+                "uuid": ${uuid},
+                "widget": {
+                  "providerName": "uicommons",
+                  "fragmentId": "field\/text"
+                }
+              },
+              {
+                "type": "personAttribute",
+                "label": "District",
+                "formFieldName": "district",
+                "uuid": ${uuid},
+                "widget": {
+                  "providerName": "uicommons",
+                  "fragmentId": "field\/text"
+                }
+              }
+            ]
+          },
+          {
+            "legend": "registrationapp.patient.phone.label",
+            "id": "phoneNumberLabel",
+            "fields": [
+              {
+                "type": "personAttribute",
+                "label": "registrationapp.patient.phone.question",
+                "formFieldName": "phoneNumber",
+                "uuid": ${uuid},
+                "widget": {
+                  "providerName": "uicommons",
+                  "fragmentId": "field\/text"
+                },
+                "cssClasses": [
+                  "phone"
+                ]
+              },
+              {
+                "type": "personAttribute",
+                "label": "Treatment Supporter Telephone Number",
+                "uuid": ${uuid},
+                "formFieldName": "nextOfKinTelNumber",
+                "widget": {
+                  "providerName": "uicommons",
+                  "fragmentId": "field\/text"
+                },
+                "cssClasses": [
+                  "phone"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "relationships-info",
+        "label": "registrationapp.person.relationship",
+        "questions": [
+          {
+            "legend": "registrationapp.person.relationship.label",
+            "header": "registrationapp.person.relationship.question",
+            "fields": [
+              {
+                "type": "personRelationships",
+                "widget": {
+                  "providerName": "registrationapp",
+                  "fragmentId": "field\/personRelationship"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+]

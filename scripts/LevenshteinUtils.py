@@ -63,4 +63,4 @@ def do_levenshtein_search(patients, search_candidate):
         __categorize_distances__(pat)
 
     # Filter out non matches
-    return filter(lambda pat : Patient(pat).match != Matcher.NO_MATCH, patients)
+    return filter(lambda pat: Patient(pat).match != Matcher.NO_MATCH, patients)
