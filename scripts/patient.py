@@ -1,4 +1,4 @@
-class Patient :
+class Patient:
     def __init__(self,
                  # names
                  given_name, middle_name, family_name,
@@ -20,4 +20,17 @@ class Patient :
         self.supporter_tel_num = supporter_tel_num
         self.first_enc_date = first_enc_date
         self.art_start_date = art_start_date
+        self.distance_from_other_patient = None
+        # By default this `Patient` is not a match
+        self.match: Matcher = Matcher.NO_MATCH
+
+    #def __init__(self, given_name):
+        #self.given_name = given_name
+
+
+
+class Matcher:
+    MATCH = 0
+    POSSIBLE_MATCH = 1
+    NO_MATCH = -1
 

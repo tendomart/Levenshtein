@@ -1,135 +1,66 @@
 import math
-import pandas as pd
 import Levenshtein
+from scripts.patient import Patient, Matcher
 
-# properties
-data_source_path: str = '../resources/Db.csv'
-
-# initialize props
-# create patient `tuple` to Levenshtein against
-selected_patient = ("_0513130114210512",
-                        "_1101021507051805", "_1919051821101001", "KAMPALA", "KCCA", "KAWEMPE DIVISION", "BWAISE III",
-                        "KAWAALA", "1997", "M", "0704202234", "", "", "")
-
-# columns (we'll use these to compute the Levenshtein distance)
 # these are columns of patient properties
-distance_columns = ['Updated_GivenName', 'Updated_MiddleName', 'Updated_FamilyName', 'District', 'County',
-                        'sub_county', 'Parish', 'village', 'Birthdate', 'Gender', 'Telephone Number',
-                        'Treatment Supporter Telephone Number', 'First Encounter Date', 'ART Start Date']
+patient_props = ['given_name', 'middle_name', 'family_name', 'district', 'county', 'sub_county', 'parish', 'village',
+                 'birthdate', 'gender', 'tel_num', 'supporter_tel_num', 'first_enc_date', 'art_start_date']
 
 
-# Read data from csv file
-# Later change data source to openmrs_db
-data = pd.read_csv(data_source_path)
-data.dropna(subset=['Clinic No.', 'District'], inplace=True)
-
-# STEP 5
-# Combine THE DATA WITH ADDRESSES WITH THE and fill in the remaining spaces with NA
-# dfbc - cleanup data
-# nf - data that was omitted due to missing village names
-# The idea is to get all the initial rows as per the original datasets combined
-final_data = pd.read_csv(data_source_path)
-final_dataframe = final_data
-final_dataframe.dropna(subset=['Clinic No.', 'District'], inplace=True)
-final_dataframe = final_dataframe.fillna("''")
-
-fd = final_dataframe
-fdx = fd
-data = fd
-# get duplicate phone numbers
-data["is_duplicate"] = data.duplicated('Telephone Number')
-data.loc[(data['is_duplicate'] == True)]
-
-
-def calc_levenshtein_distance(row):
+def __calc_levenshtein_distance__(patient: Patient, search_candidate):
     """
-    :param row: This a row of data(basically a patient entry) that will be calculated against this Patient we are
+    :param patient: This a Patient that will be calculated against this Patient we are
     searching
-    :return: Return the levenshstein distance of the Patient in this row.
+    :param search_candidate: The patient we are searching for OR calculating its equality
+    :return: Return the levenshstein distance of the Patient.
 
     """
     inner_value = 0
-    counter = 0
-    for k in distance_columns:
+    weight_flag = 0
+    for prop in patient_props:
 
-        if k == 'Updated_GivenName' or k == 'Updated_MiddleName' or k == 'Updated_FamilyName':
-            constant = 0.5
-        elif k == 'District' or k == 'County' or k == 'sub_county' or k == 'Parish' or k == 'village':
-            constant = 0.05
-        elif k == 'Birthdate' or k == 'ART Start Date' or k == 'First Encounter Date':
-            constant = 0.01
-        elif k == 'Telephone Number' or k == 'Treatment Supporter Telephone Number':
-            constant = 0.075
-        elif k == 'Gender':
-            constant = 0.15
+        if prop == 'given_name' or prop == 'middle_name' or prop == 'family_name':
+            weight_flag = 0.5
+        elif prop == 'district' or prop == 'county' or prop == 'sub_county' or prop == 'parish' or prop == 'village':
+            weight_flag = 0.05
+        elif prop == 'birthdate' or prop == 'art_start_date' or prop == 'first_enc_date':
+            weight_flag = 0.01
+        elif prop == 'tel_num' or prop == 'supporter_tel_num':
+            weight_flag = 0.075
+        elif prop == 'gender':
+            weight_flag = 0.15
 
-        inner_value += (((1 - Levenshtein.ratio(row[k], selected_patient[counter])) * constant) ** 2)
-        counter += 1
-    return math.sqrt(inner_value)
+        inner_value += (((1 - Levenshtein.ratio(getattr(patient, prop), getattr(search_candidate, prop))) * weight_flag) ** 2)
+        weight_flag += 1
+    distance = math.sqrt(inner_value)
+    patient.distance_from_other_patient = distance
+    return distance
 
 
-def categorize_distances(row):
+def __categorize_distances__(patient: Patient):
     """
     This does the ranking of whether the Patient is a match/possible/No
-    :param row: Row Patient being ranked
+    :param patient: Patient being ranked
     :return:
     """
     category_name = ""
     try:
-        distance_value = row["dist"]
-        value = float(distance_value)
+        value = float(patient.distance_from_other_patient)
         if value == 0.000000:
-            category_name = "Match"
+            patient.match = Matcher.MATCH
         elif 0.000001 <= value <= 0.1:
-            category_name = "Possible Match"
+            patient.match = Matcher.POSSIBLE_MATCH
         elif value > 0.1:
-            category_name = "None Match"
+            patient.match = Matcher.NO_MATCH
     except:
-        category_name = "Not Categorised,Invalid Distance Value"
+        pass
     return category_name
 
 
-def do_levenshtein_search():
+def do_levenshtein_search(patients, search_candidate):
+    for pat in patients:
+        __calc_levenshtein_distance__(pat, search_candidate)
+        __categorize_distances__(pat)
 
-    # Find the distance between the selected/chosen patient and everyone else.
-    levenshtein_distances = data.apply(lambda row: calc_levenshtein_distance(row), axis=1)
-    print("Printing distances")
-    print(levenshtein_distances)
-
-    # STEP 5: WEIGHT SORTING
-    # Create a new dataframe with distances.
-    distance_frame = pd.DataFrame(
-        data={"dist": levenshtein_distances, "idx": levenshtein_distances.index, "Clinic No.": data["Clinic No."]})
-    distance_frame.sort_values("dist", inplace=True)
-
-    # STEP 6: EVALUATION
-    # Find the most similar patient's to the selected patient(the lowest distance to the sp (selected patient)
-    # is sp, the second smallest is the most similar non-sp patient)
-    second_smallest = distance_frame.iloc[1]["idx"]
-    print(second_smallest)
-    most_similar_to_sp = data.loc[int(second_smallest)]["Clinic No."]
-
-    # Get the details
-    patient = data[data["Clinic No."] == most_similar_to_sp].iloc[0]
-    distance_frame = pd.DataFrame(
-        data={"dist": levenshtein_distances, "idx": levenshtein_distances.index, "Clinic No.": data["Clinic No."],
-              "Updated_GivenName": data["Updated_GivenName"], "Updated_MiddleName": data["Updated_MiddleName"],
-              "Updated_FamilyName": data["Updated_FamilyName"], "District": data["District"], "County": data["County"],
-              "sub_county": data["sub_county"], "Parish": data["Parish"], "village": data["village"],
-              "Birthdate": data["Birthdate"], "Gender": data["Gender"], "Telephone Number": data["Telephone Number"],
-              "Treatment Supporter Telephone Number": data["Treatment Supporter Telephone Number"],
-              "First Encounter Date": data["First Encounter Date"], "ART Start Date": data["ART Start Date"]})
-    distance_frame.sort_values("dist", inplace=True)
-
-    saved_df = distance_frame.head(4)
-
-    # -----------------categorization ---------------------------------#
-
-    categorised_distances = saved_df.apply(lambda row: categorize_distances(row), axis=1)
-    saved_df = saved_df.assign(RecordCategory=categorised_distances.values)
-    # saved_df['Category'] = Series(categorised_distances, index=saved_df.index)
-    # categorised_distances.to_csv('saved_Levenshtein_distances_category.csv')
-    # ---------------end of categorization----------------------------#
-
-
-do_levenshtein_search()
+    # Filter out non matches
+    return filter(lambda pat : Patient(pat).match != Matcher.NO_MATCH, patients)
