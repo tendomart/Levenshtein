@@ -24,8 +24,9 @@ class Patient:
         # By default this `Patient` is not a match
         self.match: Matcher = Matcher.NO_MATCH
 
-    #def __init__(self, given_name):
-        #self.given_name = given_name
+    # Default constructor
+    def __init__(self):
+        pass
 
 
 
