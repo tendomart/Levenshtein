@@ -3,9 +3,10 @@
     <head>
         <meta charset="UTF-8">
         <title>{%block title %}{% endblock%}</title>
+        <link rel="stylesheet" href="/static/css/main.css" type="text/css">
     </head>
     <body>
-        <div id="header">
+        <div class="header" id="header">
             <h1>
                 Levenshtein-based Patient Search Engine
             </h1>
@@ -14,8 +15,9 @@
         <div id="content">
             {% block content %} {% endblock %}
         </div>
-        <div id="footer">
-            <br>Powered by Openmrs
+        
+        <div>
+        <footer> {% extends "fragments/footer.html" %}</footer>
         </div>
     </body>
 </html>
