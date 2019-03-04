@@ -4,32 +4,53 @@ from datetime import datetime
 class Patient:
     def __init__(self,
                  # names
-                 given_name, middle_name, family_name,
+                 given_name="", middle_name="", family_name="",
                  # address props
-                 district, county, sub_county, parish, village,
+                 district="", county="", sub_county="", parish="", village="",
                  # others
-                 birthdate, gender, tel_num, supporter_tel_num, first_enc_date, art_start_date):
+                 birthdate="", gender="", tel_num="", supporter_tel_num="", first_enc_date="", art_start_date=""):
         self.given_name = given_name
-        self.middle_name = middle_name
+
+        if middle_name:
+            self.middle_name = middle_name
+        else: self.middle_name = ""
+
         self.family_name = family_name
-        self.district = district
-        self.county = county
-        self.sub_county = sub_county
-        self.parish = parish
-        self.village = village
+
+        if district:
+            self.district = district
+        else: self.district = ""
+
+        if county:
+            self.county = county
+        else: self.county = ""
+
+        if sub_county:
+            self.sub_county = sub_county
+        else: self.sub_county = ""
+
+        if parish:
+            self.parish = parish
+        else: self.parish = ""
+
+        if village:
+            self.village = village
+        else: self.village = ""
+
         self.birthdate = format_date(birthdate)
         self.gender = gender
-        self.tel_num = tel_num
-        self.supporter_tel_num = supporter_tel_num
+        if tel_num:
+            self.tel_num = tel_num
+        else: self.tel_num = ""
+
+        if supporter_tel_num:
+            self.supporter_tel_num = supporter_tel_num
+        else: self.supporter_tel_num = ""
         self.first_enc_date = format_date(first_enc_date)
         self.art_start_date = format_date(art_start_date)
         self.distance_from_other_patient = None
         # By default this `Patient` is not a match
         self.match: Matcher = Matcher.NO_MATCH
-
-    # Default constructor
-    def __init__(self):
-        pass
 
 
 class Matcher:

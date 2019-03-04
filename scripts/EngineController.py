@@ -20,6 +20,7 @@ def get_login():
 
 @app.route("/results")
 def get_results(patient_search_results):
+    print(patient_search_results)
     return render_template("results.html", results=patient_search_results)
 
 
